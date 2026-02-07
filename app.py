@@ -16,8 +16,6 @@ st.set_page_config(
 st.title("📊 Cursuri Valutare - Banca Națională a Moldovei")
 st.markdown("Date oficiale preluate automat de la [BNM](https://www.bnm.md)")
 
-# Cache pentru a nu face prea multe cereri
-@st.cache_data(ttl=3600)  # Cache 1 ora
 def get_exchange_rate(date_str):
     """Preia cursul valutar pentru o anumită dată"""
     url = f"https://www.bnm.md/en/official_exchange_rates?get_xml=1&date={date_str}"
@@ -25,8 +23,8 @@ def get_exchange_rate(date_str):
         response = requests.get(url, timeout=10)
         if response.status_code == 200:
             return response.content
-    except:
-        pass
+    except Exception as e:
+        st.warning(f"Eroare la încărcarea datelor pentru {date_str}: {e}")
     return None
 
 def parse_xml(xml_content):
@@ -39,27 +37,22 @@ def parse_xml(xml_content):
             name = valute.find('Name').text
             value = float(valute.find('Value').text)
             nominal = int(valute.find('Nominal').text)
-            # Normalizăm la 1 unitate
             rates[code] = {
                 'name': name,
                 'value': value / nominal,
                 'nominal': nominal
             }
-    except:
+    except Exception as e:
         pass
     return rates
 
 @st.cache_data(ttl=3600)
-def get_historical_data(days=365):
+def get_historical_data(days=30):
     """Preia datele istorice pentru ultimele N zile"""
     data = []
     end_date = datetime.now()
 
-    # Progress bar
-    progress_text = "Se încarcă datele..."
-    progress_bar = st.progress(0, text=progress_text)
-
-    for i in range(days):
+    for i in range(0, days, 1):
         date = end_date - timedelta(days=i)
         date_str = date.strftime("%d.%m.%Y")
 
@@ -69,20 +62,16 @@ def get_historical_data(days=365):
             if rates:
                 for code, info in rates.items():
                     data.append({
-                        'Data': date,
+                        'Data': date.date(),
                         'Cod': code,
                         'Moneda': info['name'],
                         'Curs': info['value']
                     })
 
-        # Actualizăm progress bar
-        progress_bar.progress((i + 1) / days, text=f"Se încarcă... {i+1}/{days} zile")
-
-    progress_bar.empty()
-
     if data:
         df = pd.DataFrame(data)
-        df = df.sort_values('Data')
+        df['Data'] = pd.to_datetime(df['Data'])
+        df = df.sort_values('Data', ascending=True)
         return df
     return pd.DataFrame()
 
@@ -91,10 +80,9 @@ st.sidebar.header("⚙️ Setări")
 
 # Selectare perioadă
 period_options = {
-    "Ultima lună": 30,
-    "Ultimele 3 luni": 90,
-    "Ultimele 6 luni": 180,
-    "Ultimul an": 365
+    "Ultima săptămână": 7,
+    "Ultimele 2 săptămâni": 14,
+    "Ultima lună": 30
 }
 selected_period = st.sidebar.selectbox(
     "Perioada:",
@@ -110,7 +98,7 @@ main_currencies = ['EUR', 'USD', 'RON', 'UAH', 'GBP', 'CHF', 'RUB']
 selected_currencies = st.sidebar.multiselect(
     "Monede de afișat:",
     options=main_currencies,
-    default=['EUR', 'USD', 'RON']
+    default=['EUR', 'USD']
 )
 
 # Buton pentru reîncărcare date
@@ -119,12 +107,13 @@ if st.sidebar.button("🔄 Reîncarcă datele"):
     st.rerun()
 
 # Încărcăm datele
-with st.spinner('Se încarcă datele de la BNM...'):
+with st.spinner('Se încarcă datele de la BNM... Așteaptă câteva secunde.'):
     df = get_historical_data(days)
 
 if not df.empty and selected_currencies:
     # Filtrăm pentru monedele selectate
-    df_filtered = df[df['Cod'].isin(selected_currencies)]
+    df_filtered = df[df['Cod'].isin(selected_currencies)].copy()
+    df_filtered = df_filtered.sort_values('Data', ascending=True)
 
     # Afișăm cursul actual
     st.subheader("💰 Cursul valutar de azi")
@@ -157,11 +146,17 @@ if not df.empty and selected_currencies:
             'Data': 'Data',
             'Curs': 'Curs (MDL)',
             'Cod': 'Moneda'
-        }
+        },
+        markers=True
     )
 
     fig.update_layout(
         hovermode='x unified',
+        xaxis=dict(
+            tickformat='%d.%m.%Y',
+            tickmode='auto',
+            nticks=10
+        ),
         legend=dict(
             orientation="h",
             yanchor="bottom",
@@ -171,35 +166,9 @@ if not df.empty and selected_currencies:
         )
     )
 
+    fig.update_traces(mode='lines+markers')
+
     st.plotly_chart(fig, use_container_width=True)
-
-    # Grafice individuale pentru fiecare monedă
-    st.subheader("📊 Grafice individuale")
-
-    for currency in selected_currencies:
-        df_currency = df_filtered[df_filtered['Cod'] == currency]
-        if not df_currency.empty:
-            currency_name = df_currency['Moneda'].values[0]
-
-            fig_individual = go.Figure()
-            fig_individual.add_trace(go.Scatter(
-                x=df_currency['Data'],
-                y=df_currency['Curs'],
-                mode='lines',
-                name=currency,
-                fill='tozeroy',
-                fillcolor='rgba(0, 100, 255, 0.1)',
-                line=dict(color='rgb(0, 100, 255)', width=2)
-            ))
-
-            fig_individual.update_layout(
-                title=f'{currency} - {currency_name}',
-                xaxis_title='Data',
-                yaxis_title='Curs (MDL)',
-                hovermode='x'
-            )
-
-            st.plotly_chart(fig_individual, use_container_width=True)
 
     # Tabel cu date
     st.subheader("📋 Tabel cu date")
@@ -226,7 +195,7 @@ if not df.empty and selected_currencies:
 
 else:
     if df.empty:
-        st.error("Nu s-au putut încărca datele de la BNM. Verifică conexiunea la internet.")
+        st.error("Nu s-au putut încărca datele de la BNM. Încearcă să reîncarci pagina.")
     else:
         st.warning("Selectează cel puțin o monedă din meniul din stânga.")
 
