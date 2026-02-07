@@ -116,9 +116,8 @@ if not df.empty and selected_currencies:
     df_filtered = df_filtered.sort_values('Data', ascending=True)
 
     # Afișăm cursul actual
-    st.subheader("💰 Cursul valutar de azi")
-
     latest_date = df_filtered['Data'].max()
+    st.subheader(f"💰 Cursul valutar din {latest_date.strftime('%d.%m.%Y')}")
     latest_rates = df_filtered[df_filtered['Data'] == latest_date]
 
     cols = st.columns(len(selected_currencies))
