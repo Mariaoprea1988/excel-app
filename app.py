@@ -19,6 +19,18 @@ st.markdown("Date oficiale preluate de la [BNM](https://www.bnm.md)")
 # ─────────────────────────────────────────────
 # TAB-URI
 # ─────────────────────────────────────────────
+st.markdown("""
+<style>
+    .stTabs [data-baseweb="tab"] {
+        font-size: 1.25rem;
+        padding: 10px 24px;
+    }
+    .stTabs [data-baseweb="tab"] p {
+        font-size: 1.25rem;
+    }
+</style>
+""", unsafe_allow_html=True)
+
 tab1, tab2 = st.tabs(["💱 Cursuri Valutare", "🏦 Sectorul Bancar"])
 
 # ─────────────────────────────────────────────
