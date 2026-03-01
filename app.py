@@ -31,7 +31,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-tab1, tab2 = st.tabs(["💱 Cursuri Valutare", "🏦 Sectorul Bancar"])
+tab2, tab1 = st.tabs(["🏦 Sectorul Bancar", "💱 Cursuri Valutare"])
 
 # ─────────────────────────────────────────────
 # FUNCȚII CURSURI VALUTARE
