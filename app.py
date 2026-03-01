@@ -14,7 +14,7 @@ st.set_page_config(
 )
 
 st.title("🏦 AI Bank")
-st.markdown("Date oficiale preluate de la [BNM](https://www.bnm.md)")
+st.markdown("AI Bank")
 
 # ─────────────────────────────────────────────
 # TAB-URI
