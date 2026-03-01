@@ -119,15 +119,20 @@ def make_bar_chart(banks, values, title, yaxis_label, color_seq=None):
         color_discrete_sequence=color_seq or px.colors.qualitative.Set2,
         text_auto='.2f'
     )
-    fig.update_traces(textposition='outside')
+    fig.update_traces(
+        textposition='outside',
+        textfont=dict(size=15, color='black', family='Arial Black')
+    )
     fig.update_layout(showlegend=False, xaxis_title='', yaxis_title=yaxis_label)
     return fig
+
+_bold_font = dict(size=14, color='black', family='Arial Black')
 
 def make_grouped_bar_chart(banks, values1, values2, name1, name2, title, yaxis_label):
     """Creează un bar chart grupat pentru doi indicatori"""
     fig = go.Figure()
-    fig.add_trace(go.Bar(name=name1, x=banks, y=values1, text=[f'{v:.2f}' for v in values1], textposition='outside'))
-    fig.add_trace(go.Bar(name=name2, x=banks, y=values2, text=[f'{v:.2f}' for v in values2], textposition='outside'))
+    fig.add_trace(go.Bar(name=name1, x=banks, y=values1, text=[f'{v:.2f}' for v in values1], textposition='outside', textfont=_bold_font))
+    fig.add_trace(go.Bar(name=name2, x=banks, y=values2, text=[f'{v:.2f}' for v in values2], textposition='outside', textfont=_bold_font))
     fig.update_layout(
         barmode='group',
         title=title,
