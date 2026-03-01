@@ -135,7 +135,13 @@ def make_bar_chart(banks, values, title, yaxis_label, color_seq=None):
         textposition='outside',
         textfont=dict(size=15, color='black', family='Arial Black')
     )
-    fig.update_layout(showlegend=False, xaxis_title='', yaxis_title=yaxis_label)
+    max_val = max(v for v in values if v is not None)
+    fig.update_layout(
+        showlegend=False,
+        xaxis_title='',
+        yaxis_title=yaxis_label,
+        yaxis=dict(range=[0, max_val * 1.25])
+    )
     return fig
 
 _bold_font = dict(size=14, color='black', family='Arial Black')
@@ -145,11 +151,13 @@ def make_grouped_bar_chart(banks, values1, values2, name1, name2, title, yaxis_l
     fig = go.Figure()
     fig.add_trace(go.Bar(name=name1, x=banks, y=values1, text=[f'{v:.2f}' for v in values1], textposition='outside', textfont=_bold_font))
     fig.add_trace(go.Bar(name=name2, x=banks, y=values2, text=[f'{v:.2f}' for v in values2], textposition='outside', textfont=_bold_font))
+    max_val = max(max(values1), max(values2))
     fig.update_layout(
         barmode='group',
         title=title,
         xaxis_title='',
         yaxis_title=yaxis_label,
+        yaxis=dict(range=[0, max_val * 1.25]),
         legend=dict(orientation='h', yanchor='bottom', y=1.02, xanchor='right', x=1)
     )
     return fig
