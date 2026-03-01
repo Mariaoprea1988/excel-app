@@ -3,8 +3,10 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 import requests
+import io
 from datetime import datetime, timedelta
 from xml.etree import ElementTree as ET
+from fpdf import FPDF
 
 # Configurare pagina
 st.set_page_config(
@@ -145,6 +147,55 @@ def make_bar_chart(banks, values, title, yaxis_label, color_seq=None):
     return fig
 
 _bold_font = dict(size=14, color='black', family='Arial Black')
+
+def create_pdf_indicatori(df_table, banks):
+    """Generează PDF pentru tabelul de indicatori"""
+    def clean(text):
+        return str(text).encode('latin-1', 'replace').decode('latin-1')
+
+    pdf = FPDF(orientation='L')
+    pdf.add_page()
+
+    # Titlu
+    pdf.set_font('Helvetica', 'B', 14)
+    pdf.cell(0, 10, clean('Indicatori Capital Bancar - Decembrie 2025'), ln=True, align='C')
+    pdf.ln(3)
+
+    # Latimi coloane
+    col_ind = 90
+    col_unit = 22
+    col_bank = 38
+
+    # Header tabel
+    pdf.set_font('Helvetica', 'B', 8)
+    pdf.set_fill_color(52, 152, 219)
+    pdf.set_text_color(255, 255, 255)
+    pdf.cell(col_ind, 8, 'Indicator', border=1, fill=True)
+    pdf.cell(col_unit, 8, 'Unitate', border=1, fill=True)
+    for bank in banks:
+        pdf.cell(col_bank, 8, clean(bank), border=1, fill=True, align='C')
+    pdf.ln()
+
+    # Randuri
+    pdf.set_font('Helvetica', '', 7)
+    pdf.set_text_color(0, 0, 0)
+    for i, row in df_table.iterrows():
+        if i % 2 == 0:
+            pdf.set_fill_color(235, 245, 255)
+        else:
+            pdf.set_fill_color(255, 255, 255)
+        pdf.cell(col_ind, 6, clean(str(row['Indicator'])[:55]), border=1, fill=True)
+        pdf.cell(col_unit, 6, clean(str(row['Unitate'])), border=1, fill=True, align='C')
+        for bank in banks:
+            val = row[bank]
+            try:
+                val_str = f'{float(val):.2f}'
+            except:
+                val_str = '-'
+            pdf.cell(col_bank, 6, val_str, border=1, fill=True, align='C')
+        pdf.ln()
+
+    return bytes(pdf.output())
 
 def make_grouped_bar_chart(banks, values1, values2, name1, name2, title, yaxis_label):
     """Creează un bar chart grupat pentru doi indicatori"""
@@ -379,6 +430,27 @@ with tab2:
 
         df_table = pd.DataFrame(table_data)
         st.dataframe(df_table, use_container_width=True, hide_index=True)
+
+        # Butoane descărcare
+        col_csv, col_pdf = st.columns(2)
+        with col_csv:
+            csv_data = df_table.to_csv(index=False).encode('utf-8')
+            st.download_button(
+                label="📥 Descarcă CSV",
+                data=csv_data,
+                file_name="indicatori_capital_bancar.csv",
+                mime="text/csv",
+                use_container_width=True
+            )
+        with col_pdf:
+            pdf_data = create_pdf_indicatori(df_table, banks)
+            st.download_button(
+                label="📄 Descarcă PDF",
+                data=pdf_data,
+                file_name="indicatori_capital_bancar.pdf",
+                mime="application/pdf",
+                use_container_width=True
+            )
 
     except FileNotFoundError:
         st.error("Fișierul Capital.xlsx nu a fost găsit. Asigură-te că fișierul se află în același director cu app.py.")
