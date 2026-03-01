@@ -8,12 +8,12 @@ from xml.etree import ElementTree as ET
 
 # Configurare pagina
 st.set_page_config(
-    page_title="Date BNM",
+    page_title="AI Bank",
     page_icon="🏦",
     layout="wide"
 )
 
-st.title("📊 Date Banca Națională a Moldovei")
+st.title("🏦 AI Bank")
 st.markdown("Date oficiale preluate de la [BNM](https://www.bnm.md)")
 
 # ─────────────────────────────────────────────
