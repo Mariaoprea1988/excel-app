@@ -1,0 +1,11 @@
+Borrower Category,Currency Type,Volume (Mil. MDL),Estimated Volume (Mil. USD),Source Reference
+Total Banking Sector,National Currency,890.09,50.01,[1]
+Legal Entities,National Currency,784.36,44.07,[1]
+Individuals Practicing Business,National Currency,31.56,1.77,[2]
+Individuals: Total,National Currency,74.17,4.17,[3]
+Individuals: Consumer Loans,National Currency,353.92,19.88,[4]
+Individuals: Real Estate,National Currency,0.13,0.01,[5]
+Total Banking Sector,Foreign Currency,5.58,0.31,[6]
+Legal Entities,Foreign Currency,5.58,0.31,[7]
+Total Banking Sector,Exchange-Rate-Attached,0.25,0.01,[8]
+Legal Entities,Exchange-Rate-Attached,0.00,0.00,[8]
