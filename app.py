@@ -634,12 +634,6 @@ with tab_bancar:
     with sub_capital:
         st.markdown('<span class="section-badge">Capital Bancar</span>', unsafe_allow_html=True)
         st.markdown("### 🏦 Capital Bancar")
-        st.markdown(
-            '<div class="info-box">Date privind capitalul bancar al băncilor licențiate din Republica Moldova. '
-            'Se încearcă extragerea automată de pe <strong>bnm.md</strong>; '
-            'dacă nu este disponibil, se folosește fișierul local <strong>Capital.xlsx</strong>.</div>',
-            unsafe_allow_html=True
-        )
 
         col_r0, _ = st.columns([1, 4])
         with col_r0:
