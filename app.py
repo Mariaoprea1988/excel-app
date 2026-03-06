@@ -679,7 +679,7 @@ with tab_bancar:
                 st.markdown(f"#### {i+1}. {ind['name']} ({ind['unit']})")
                 fig = make_bar_chart(
                     banks, vals(i),
-                    title=f"{ind['name']} per bancă",
+                    title=f"{ind['name']} — Decembrie 2025",
                     yaxis_label=ind['unit'] or 'valoare',
                     color_seq=color_cycle[i % len(color_cycle)]
                 )
