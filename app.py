@@ -331,11 +331,11 @@ def _parse_capital_df(df):
     return banks, indicators
 
 
-CAPITAL_LOCAL = "data/Capital decembrie.xls"
+CAPITAL_LOCAL = "data/Capital Februarie 2026.xls"
 
 @st.cache_data
 def load_capital_data():
-    """Încarcă Capital decembrie.xls și auto-detectează toate băncile și indicatorii."""
+    """Încarcă Capital Februarie 2026 și auto-detectează toate băncile și indicatorii."""
     df = pd.read_excel(CAPITAL_LOCAL, sheet_name=0, header=None, engine='xlrd')
     return _parse_capital_df(df)
 
@@ -418,7 +418,7 @@ def create_pdf_indicatori(df_table, banks):
     pdf.add_page()
 
     pdf.set_font('Helvetica', 'B', 14)
-    pdf.cell(0, 10, clean('Indicatori Capital Bancar - Decembrie 2025'), ln=True, align='C')
+    pdf.cell(0, 10, clean('Indicatori Capital Bancar - Februarie 2026'), ln=True, align='C')
     pdf.ln(3)
 
     page_w = 277  # A4 landscape utilizabil (mm)
@@ -651,9 +651,9 @@ with tab_bancar:
             else:
                 try:
                     banks, indicators = load_capital_data()
-                    source_cap = "📁 Capital.xlsx (local)"
+                    source_cap = "📁 Capital Februarie 2026 (local)"
                 except FileNotFoundError:
-                    st.error("Fișierul Capital decembrie.xls nu a fost găsit și BNM.md nu este accesibil.")
+                    st.error("Fișierul Capital.xlsx nu a fost găsit și BNM.md nu este accesibil.")
                 except Exception as e:
                     st.error(f"Eroare la încărcarea datelor: {e}")
 
@@ -679,7 +679,7 @@ with tab_bancar:
                 st.markdown(f"#### {i+1}. {ind['name']} ({ind['unit']})")
                 fig = make_bar_chart(
                     banks, vals(i),
-                    title=f"{ind['name']} — Decembrie 2025",
+                    title=f"{ind['name']} — Februarie 2026",
                     yaxis_label=ind['unit'] or 'valoare',
                     color_seq=color_cycle[i % len(color_cycle)]
                 )
