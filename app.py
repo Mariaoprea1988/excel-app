@@ -658,7 +658,7 @@ with tab_bancar:
                     st.error(f"Eroare la încărcarea datelor: {e}")
 
         if banks and indicators:
-            st.caption(f"Sursă: {source_cap} · {len(banks)} bănci · {len(indicators)} indicatori")
+            st.caption(f"Sursă: {source_cap} · {len(banks) - 1} bănci · {len(indicators)} indicatori")
 
             def vals(idx):
                 if idx >= len(indicators):
